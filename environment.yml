@@ -68,7 +68,7 @@ dependencies:
   - mock=3.0.4=py37_0
   - ncurses=6.1=hf484d3e_1002
   - numpy=1.16.3=py37he5ce36f_0
-  - openssl=1.1.1=h7b6447c_0
+  - openssl
   - pango=1.42.4=h049681c_0
   - pcre=8.43=he6710b0_0
   - pip=19.1=py37_0
