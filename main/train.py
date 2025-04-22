@@ -11,14 +11,15 @@ import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import EarlyStopping
 from cnn import Convolucao
+import os
 
 import datetime
 import h5py
 import time
 
-EPOCHS = 30
-CLASS = 21
-FILE_NAME = 'cnn_model_LIBRAS_'
+EPOCHS = 2
+CLASS = 22
+FILE_NAME = 'cnn_model_LIBRAS_note_'
 
 def getDateStr():
         return str('{date:%Y%m%d_%H%M}').format(date=datetime.datetime.now())
@@ -47,6 +48,8 @@ training_set = train_datagen.flow_from_directory(
         shuffle=False,
         class_mode='categorical')
 
+print('[INFO] Total de classes: %d' % training_set.num_classes)
+
 test_set = test_datagen.flow_from_directory(
         '../dataset/test',
         target_size=(64, 64),
@@ -67,16 +70,30 @@ model.compile(optimizer=SGD(0.01), loss="categorical_crossentropy",
 
 # treinar a CNN
 print("[INFO] Treinando a CNN...")
+# classifier = model.fit_generator(
+#         training_set,
+#         steps_per_epoch=(training_set.n // training_set.batch_size),
+#         epochs=EPOCHS,
+#         validation_data = test_set,
+#         validation_steps= (test_set.n // test_set.batch_size),
+#         shuffle = False,
+#         verbose=2,
+#         callbacks = [early_stopping_monitor]
+#       )
+
 classifier = model.fit_generator(
-        training_set,
-        steps_per_epoch=(training_set.n // training_set.batch_size),
-        epochs=EPOCHS,
-        validation_data = test_set,
-        validation_steps= (test_set.n // test_set.batch_size),
-        shuffle = False,
-        verbose=2,
-        callbacks = [early_stopping_monitor]
-      )
+    training_set,
+    steps_per_epoch=training_set.n // training_set.batch_size,
+    epochs=EPOCHS,
+    validation_data=test_set,
+    validation_steps=test_set.n // test_set.batch_size,
+    callbacks=[early_stopping_monitor],
+    shuffle=False,
+    verbose=2,
+    workers=os.cpu_count(),
+    use_multiprocessing=True,
+)
+
 
 # atualizo valor da epoca caso o treinamento tenha finalizado antes do valor de epoca que foi iniciado
 EPOCHS = len(classifier.history["loss"])
